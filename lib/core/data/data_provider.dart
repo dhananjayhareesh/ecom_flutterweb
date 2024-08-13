@@ -61,7 +61,9 @@ class DataProvider extends ChangeNotifier {
   List<MyNotification> _filteredNotifications = [];
   List<MyNotification> get notifications => _filteredNotifications;
 
-  DataProvider() {}
+  DataProvider() {
+    getAllCategory();
+  }
 
   Future<List<Category>> getAllCategory({bool showSnack = false}) async {
     try {
@@ -85,7 +87,17 @@ class DataProvider extends ChangeNotifier {
     return _filteredCategories;
   }
 
-  //TODO: should complete filterCategories
+  void filterCategories(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredCategories = List.from(_allCategories);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+      _filteredCategories = _allCategories.where((category) {
+        return (category.name ?? '').toLowerCase().contains(lowerKeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
   //TODO: should complete getAllSubCategory
 
