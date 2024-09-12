@@ -31,6 +31,7 @@ class SubCategoryProvider extends ChangeNotifier {
         if (apiResponse.success == true) {
           clearFields();
           SnackBarHelper.showSuccessSnackBar('${apiResponse.message}');
+          _dataProvider.getAllCategory();
           print('sub category added');
         } else {
           SnackBarHelper.showErrorSnackBar(
@@ -47,13 +48,51 @@ class SubCategoryProvider extends ChangeNotifier {
     }
   }
 
-  //TODO: should complete updateSubCategory
+  updateSubCategory() async {
+    try {
+      if (subCategoryForUpdate != null) {
+        Map<String, dynamic> subCategory = {
+          'name': subCategoryNameCtrl.text,
+          'categoryId': selectedCategory?.sId
+        };
+        final response = await service.updateItem(
+            endpointUrl: 'subCategories',
+            itemId: subCategoryForUpdate?.sId ?? '',
+            itemData: subCategory);
+        if (response.isOk) {
+          ApiResponse apiResponse = ApiResponse.fromJson(response.body, null);
+          if (apiResponse.success == true) {
+            clearFields();
+            SnackBarHelper.showErrorSnackBar('${apiResponse.message}');
+            print('Sub Category updated');
+            _dataProvider.getAllSubCategory();
+          } else {
+            SnackBarHelper.showErrorSnackBar(
+                'Failed to add sub category: ${apiResponse.message}');
+          }
+        } else {
+          SnackBarHelper.showErrorSnackBar(
+              'Error ${response.body?['message'] ?? response.statusText}');
+        }
+      }
+    } catch (e) {
+      print(e);
+      SnackBarHelper.showErrorSnackBar('An error occurred: $e');
+      rethrow;
+    }
+  }
 
-  //TODO: should complete submitSubCategory
+  submitSubCategory() {
+    if (subCategoryForUpdate != null) {
+      updateSubCategory();
+    } else {
+      addSubCategory();
+    }
+  }
 
   //TODO: should complete deleteSubCategory
 
-  setDataForUpdateCategory(SubCategory? subCategory) {
+  setDataForUpdateSubCategory(SubCategory? subCategory) {
     if (subCategory != null) {
       subCategoryForUpdate = subCategory;
       subCategoryNameCtrl.text = subCategory.name ?? '';
